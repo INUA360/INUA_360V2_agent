@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inua360-backend"
+version = "0.1.0"
+description = "Inua360 core MVP backend (Django + DRF)"
+requires-python = ">=3.11"
+dependencies = [
+  "Django==5.2.12",
+  "djangorestframework==3.17.0",
+  "djangorestframework-simplejwt==5.5.1",
+  "drf-spectacular==0.28.0",
+  "django-cors-headers==4.9.0",
+  "django-storages==1.14.6",
+  "boto3==1.40.74",
+  "psycopg[binary]==3.2.12",
+  "pikepdf==10.0.3",
+  "pdfplumber==0.11.7",
+  "cryptography==45.0.4",
+  "reportlab==4.4.4",
+  "PyYAML==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.4.2",
+  "pytest-django==4.11.1",
+  "pytest-cov==7.0.0",
+  "ruff==0.14.5",
+  "mypy==1.18.2",
+  "django-stubs==6.1.2",
+  "django-stubs-ext==6.1.2",
+  "djangorestframework-stubs==3.16.6",
+  "types-PyYAML==6.0.12.20250915",
+  "gunicorn==23.0.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["config*", "apps*"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py", "*_test.py"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning"]
+markers = ["isolation: database row-level security tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["."]
+exclude = ["migrations", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "DJ"]
+ignore = ["S101", "B008", "DJ001"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "S311"]
+"conftest.py" = ["S106"]
+"apps/*/migrations/*" = ["E501"]
+"apps/ingestion/generator.py" = ["S107", "S311"]
+"apps/opportunities/seed_data.py" = ["E501"]
+"config/settings/dev.py" = ["S104"]
+"config/settings/prod.py" = ["S105"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "."
+explicit_package_bases = true
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+strict = true
+warn_unused_ignores = false
+disallow_untyped_defs = true
+exclude = ["migrations", "tests", ".venv"]
+
+[[tool.mypy.overrides]]
+module = ["*.migrations.*"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["pdfplumber.*", "pikepdf.*", "reportlab.*", "storages.*", "boto3.*", "botocore.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"

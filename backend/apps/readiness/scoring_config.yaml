@@ -1,0 +1,147 @@
+# Funding Readiness rubric. This is a transparent rubric, NOT a credit score.
+# Every weight/threshold is configurable here; the engine contains no magic numbers.
+version: "1.0.0"
+components:
+  business_stability:
+    weight: 15
+    label: Business stability
+    description: How long the business has been operating.
+    bands:
+      - max_months: 5
+        points: 0
+      - max_months: 11
+        points: 5
+      - max_months: 23
+        points: 9
+      - max_months: 35
+        points: 12
+      - max_months: null
+        points: 15
+  revenue_consistency:
+    weight: 20
+    label: Revenue consistency
+    description: Months of financial data and how stable monthly money-in is.
+    months_points:
+      bands:
+        - min_months: 6
+          points: 10
+        - min_months: 4
+          points: 7
+        - min_months: 3
+          points: 4
+        - min_months: 1
+          points: 2
+        - min_months: 0
+          points: 0
+    cv_points:
+      bands:
+        - max_cv: 0.20
+          points: 10
+        - max_cv: 0.35
+          points: 8
+        - max_cv: 0.50
+          points: 5
+        - max_cv: 0.75
+          points: 2
+        - max_cv: null
+          points: 0
+  cash_flow_health:
+    weight: 15
+    label: Cash flow health
+    description: Share of months with positive net cash flow and average net margin.
+    positive_ratio_points:
+      bands:
+        - min_ratio: 0.80
+          points: 8
+        - min_ratio: 0.60
+          points: 6
+        - min_ratio: 0.40
+          points: 4
+        - min_ratio: 0.20
+          points: 2
+        - min_ratio: 0
+          points: 0
+    net_margin_points:
+      bands:
+        - min_margin: 0.20
+          points: 7
+        - min_margin: 0.10
+          points: 5
+        - min_margin: 0.05
+          points: 3
+        - min_margin: 0
+          points: 1
+        - min_margin: null
+          points: 0
+  compliance:
+    weight: 20
+    label: Compliance
+    description: KRA PIN, TCC, county permit, and business registration.
+    field_points: 5
+    verified_multiplier: 1.0
+    self_reported_multiplier: 0.7
+  debt_load:
+    weight: 10
+    label: Debt load
+    description: Estimated share of monthly money-in used by loan repayments.
+    dsr_bands:
+      - max_dsr: 0.10
+        points: 10
+      - max_dsr: 0.20
+        points: 8
+      - max_dsr: 0.30
+        points: 6
+      - max_dsr: 0.40
+        points: 3
+      - max_dsr: null
+        points: 0
+    no_debt_points: 10
+  documentation:
+    weight: 15
+    label: Documentation
+    description: Share of the standard document checklist uploaded.
+  profile_completeness:
+    weight: 5
+    label: Profile completeness
+    description: Required business profile fields completed.
+thresholds:
+  no_statement_credit: 0.5
+  bands:
+    - min_score: 80
+      key: strong
+      label: Strong
+    - min_score: 60
+      key: fundable_with_preparation
+      label: Fundable with preparation
+    - min_score: 40
+      key: getting_there
+      label: Getting there
+    - min_score: 0
+      key: not_yet_ready
+      label: Not yet ready
+data_confidence:
+  low_below_months: 3
+  medium_below_months: 6
+  high_min_months: 6
+document_checklist:
+  - business_registration_certificate
+  - kra_pin_certificate
+  - tcc
+  - county_permit
+  - id_owner
+  - bank_statement
+required_profile_fields:
+  - name
+  - sector
+  - what_they_sell
+  - county
+  - town
+  - started_on
+  - structure
+  - employee_band
+  - owner_name
+  - owner_phone
+notes:
+  disclaimer: >-
+    This score is a transparent rubric based on common lending criteria. It is not
+    a credit score and does not guarantee funding.

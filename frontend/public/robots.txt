@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /financials
+Disallow: /documents
+Disallow: /opportunities
+Disallow: /onboarding
+Disallow: /settings
+Allow: /

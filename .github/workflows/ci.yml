@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      DJANGO_SECRET_KEY: ci-only-long-secret-value-1234567890
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_NAME: inua360
+      DB_USER: inua_app
+      DB_PASSWORD: inua_app_dev_password
+      DB_MIGRATOR_USER: inua_migrator
+      DB_MIGRATOR_PASSWORD: inua_migrator_dev_password
+      DB_SSLMODE: disable
+      STORAGE_BACKEND: filesystem
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -e 'backend[dev]'
+      - name: Bootstrap database roles
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f backend/scripts/bootstrap_roles.sql
+          PGPASSWORD=postgres createdb -h localhost -U postgres -O inua_migrator inua360
+      - name: Ruff
+        run: cd backend && ruff check .
+      - name: Mypy
+        run: cd backend && mypy apps config
+      - name: Django checks
+        working-directory: backend
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+          DJANGO_SETTINGS_MODULE=config.settings.prod \
+            DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
+            DJANGO_ALLOWED_HOSTS=localhost \
+            python manage.py check --deploy
+      - name: Tests
+        working-directory: backend
+        run: pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: cd frontend && npm ci
+      - run: cd frontend && npm run lint
+      - run: cd frontend && npm run typecheck
+      - run: cd frontend && npm run test
+      - run: cd frontend && npm run build
+      - run: cd frontend && npx playwright install --with-deps chromium
+      - run: cd frontend && npm run e2e

@@ -1,0 +1,36 @@
+# Coarse M-Pesa categorization rules. First match wins.
+# These are deliberately simple keyword rules, not an ML classifier.
+version: "1"
+categories:
+  - key: charges
+    label: Bank / M-Pesa charges
+    direction: out
+    keywords: ["charge", "charges", "excise", "levy", "fee", "fees"]
+  - key: fuliza_repayment
+    label: Fuliza / overdraft repayment
+    direction: out
+    keywords: ["fuliza", "overdraft"]
+  - key: loan_repayment
+    label: Loan repayment
+    direction: out
+    keywords: ["loan repayment", "loan", "mshwari", "kcb mpesa", "branch", "tala"]
+  - key: airtime
+    label: Airtime / bundles
+    direction: out
+    keywords: ["airtime", "bundle", "bundles", "safaricom data"]
+  - key: bill_payment
+    label: Bill payment
+    direction: out
+    keywords: ["pay bill", "paybill", "bill payment", "kplc", "water company", "nairobi water"]
+  - key: withdrawal
+    label: Agent / ATM withdrawal
+    direction: out
+    keywords: ["withdraw", "withdrawal", "atm", "agent"]
+  - key: transfer
+    label: Transfer
+    direction: null
+    keywords: ["send to", "sent to", "transfer", "received from", "send money"]
+  - key: customer_payment
+    label: Customer payment
+    direction: in
+    keywords: ["customer", "payment for", "invoice", "sale", "till", "paybill", "mpesa payment"]
